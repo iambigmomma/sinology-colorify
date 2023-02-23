@@ -34,47 +34,89 @@ os.environ['CUDA_VISIBLE_DEVICES']='0'
 app = Flask(__name__)
 
 # define a predict function as an endpoint
-
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
-        return render_template('index.html')
-
-@app.route("/process", methods=["POST"])
-def process_image():
-
-    input_path = generate_random_filename(upload_directory,"jpeg")
-    output_path = os.path.join(results_img_directory, os.path.basename(input_path))
-
-    try:
-        url = request.json["source_url"]
-        render_factor = int(request.json["render_factor"])
-
-        download(url, input_path)
+    if request.method == 'POST':
+        input_path = generate_random_filename(upload_directory,"jpeg")
+        output_path = os.path.join(results_img_directory, os.path.basename(input_path))
 
         try:
-            image_colorizer.plot_transformed_image(path=input_path, figsize=(20,20),
+            url = request.form.get('source_url')
+            # render_factor = int(request.json["render_factor"])
+            render_factor = int(35)
+
+            download(url, input_path)
+
+            try:
+                image_colorizer.plot_transformed_image(path=input_path, figsize=(20,20),
+                    render_factor=render_factor, display_render_factor=True, compare=False)
+            except:
+                convertToJPG(input_path)
+                image_colorizer.plot_transformed_image(path=input_path, figsize=(20,20),
                 render_factor=render_factor, display_render_factor=True, compare=False)
+
+            callback = send_file(output_path, mimetype='image/jpeg')
+
+            # return render_template('index.html',query_path=input_path, scores=[(0, output_path)])
+            
+            return callback, 200
+
         except:
-            convertToJPG(input_path)
-            image_colorizer.plot_transformed_image(path=input_path, figsize=(20,20),
-            render_factor=render_factor, display_render_factor=True, compare=False)
+            traceback.print_exc()
+            return {'message': 'input error'}, 400
 
-        # callback = send_file(output_path, mimetype='image/jpeg')
+        # finally:
+        #     pass
+        #     clean_all([
+        #         input_path,
+        #         output_path
+        #         ])
 
-        return render_template('index.html',query_path=input_path, scores=[(0,output_path)])
+
+    else:
+        return render_template('index.html')
+
+
+# @app.route('/', methods=['GET'])
+# def index():
+#         return render_template('index.html')
+
+# @app.route("/process", methods=["GET","POST"])
+# def process_image():
+
+#     input_path = generate_random_filename(upload_directory,"jpeg")
+#     output_path = os.path.join(results_img_directory, os.path.basename(input_path))
+
+#     try:
+#         url = request.json["source_url"]
+#         render_factor = int(request.json["render_factor"])
+
+#         download(url, input_path)
+
+#         try:
+#             image_colorizer.plot_transformed_image(path=input_path, figsize=(20,20),
+#                 render_factor=render_factor, display_render_factor=True, compare=False)
+#         except:
+#             convertToJPG(input_path)
+#             image_colorizer.plot_transformed_image(path=input_path, figsize=(20,20),
+#             render_factor=render_factor, display_render_factor=True, compare=False)
+
+#         # callback = send_file(output_path, mimetype='image/jpeg')
+
+#         return render_template('index.html',query_path=input_path, scores=[(0,output_path)])
         
-        # return callback, 200
+#         # return callback, 200
 
-    except:
-        traceback.print_exc()
-        return {'message': 'input error'}, 400
+#     except:
+#         traceback.print_exc()
+#         return {'message': 'input error'}, 400
 
-    # finally:
-    #     pass
-    #     clean_all([
-    #         input_path,
-    #         output_path
-    #         ])
+#     # finally:
+#     #     pass
+#     #     clean_all([
+#     #         input_path,
+#     #         output_path
+#     #         ])
 
 if __name__ == '__main__':
     global upload_directory
