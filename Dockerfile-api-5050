@@ -8,15 +8,6 @@ RUN mkdir -p /root/.torch/models
 
 RUN mkdir -p /data/models
 
-WORKDIR /data/models
-
-# Download the .bin files
-RUN curl -k -o ColorizeArtistic_gen.pth 'https://data.deepai.org/deoldify/ColorizeArtistic_gen.pth'
-
-RUN curl -k -o ColorizeStable_gen.pth 'https://www.dropbox.com/s/mz5n9hiq6hmwjq7/ColorizeStable_PretrainOnly_gen.pth?dl=1'
-
-
-
 ADD . /data/
 
 WORKDIR /data
@@ -35,9 +26,9 @@ RUN pip3 install scikit-image
 
 RUN pip3 install requests
 
-EXPOSE 5000
+EXPOSE 5050
 
 ENTRYPOINT ["python3"]
 
-CMD ["app.py"]
+CMD ["app_5050.py"]
 

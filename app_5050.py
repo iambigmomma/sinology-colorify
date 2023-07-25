@@ -39,48 +39,6 @@ def upload_image(upload_file_path, bucket, destination):
     client.upload_file(upload_file_path, bucket, destination)
 
 # define a predict function as an endpoint
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        input_path = generate_random_filename(upload_directory,"jpeg")
-        output_path = os.path.join(results_img_directory, os.path.basename(input_path))
-
-        try:
-            url = request.form.get('source_url')
-            # render_factor = int(request.json["render_factor"])
-            render_factor = int(35)
-
-            download(url, input_path)
-
-            try:
-                image_colorizer.plot_transformed_image(path=input_path, figsize=(20,20),
-                    render_factor=render_factor, display_render_factor=True, compare=False)
-            except:
-                convertToJPG(input_path)
-                image_colorizer.plot_transformed_image(path=input_path, figsize=(20,20),
-                render_factor=render_factor, display_render_factor=True, compare=False)
-
-            callback = send_file(output_path, mimetype='image/jpeg')
-            upload_image(output_path, 'sinology-colorify', 'example.jpeg')
-
-            # return render_template('index.html',query_path=input_path, scores=[(0, output_path)])
-            
-            return callback, 200
-
-        except:
-            traceback.print_exc()
-            return {'message': 'input error'}, 400
-
-        # finally:
-        #     pass
-        #     clean_all([
-        #         input_path,
-        #         output_path
-        #         ])
-
-
-    else:
-        return render_template('index.html')
 @app.route("/process", methods=["POST"])
 def process_image():
 
@@ -102,7 +60,7 @@ def process_image():
             render_factor=render_factor, display_render_factor=True, compare=False)
 
         callback = send_file(output_path, mimetype='image/jpeg')
-
+        
         return callback, 200
 
     except:
@@ -115,6 +73,8 @@ def process_image():
             input_path,
             output_path
             ])
+
+
 if __name__ == '__main__':
     global upload_directory
     global results_img_directory
@@ -129,6 +89,8 @@ if __name__ == '__main__':
     model_directory = '/data/models/'
     create_directory(model_directory)
     
+    artistic_model_url = 'https://data.deepai.org/deoldify/ColorizeArtistic_gen.pth'
+    get_model_bin(artistic_model_url, os.path.join(model_directory, 'ColorizeArtistic_gen.pth'))
 
 
     image_colorizer = get_image_colorizer(artistic=True)
@@ -140,7 +102,7 @@ if __name__ == '__main__':
                         aws_access_key_id='DO0072ARKH2U8T7T2EFY',
                         aws_secret_access_key='t6Oxyd6CQrbRI+pA8a9Z1uElt3PIqKPG+DCQuP08b7A')
     
-    port = 5000
+    port = 5050
     host = '0.0.0.0'
 
     app.run(host=host, port=port, threaded=False)
