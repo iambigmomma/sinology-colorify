@@ -61,7 +61,7 @@ def index():
                 render_factor=render_factor, display_render_factor=True, compare=False)
 
             callback = send_file(output_path, mimetype='image/jpeg')
-            upload_image(output_path, 'sinology-colorify', 'example.jpeg')
+           # upload_image(output_path, 'sinology-colorify', 'example.jpeg')
 
             # return render_template('index.html',query_path=input_path, scores=[(0, output_path)])
             
@@ -133,15 +133,9 @@ if __name__ == '__main__':
 
     image_colorizer = get_image_colorizer(artistic=True)
     image_colorizer.results_dir = Path(results_img_directory)
-    session = boto3.session.Session()
-    client = session.client('s3',
-                        region_name='fra1',
-                        endpoint_url='https://fra1.digitaloceanspaces.com',
-                        aws_access_key_id='DO0072ARKH2U8T7T2EFY',
-                        aws_secret_access_key='t6Oxyd6CQrbRI+pA8a9Z1uElt3PIqKPG+DCQuP08b7A')
     
     port = 5000
     host = '0.0.0.0'
 
-    app.run(host=host, port=port, threaded=False)
+    app.run(host=host, port=port, threaded=True)
 
