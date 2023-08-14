@@ -7,6 +7,7 @@ from flask import Flask, render_template
 from flask import request
 from flask import jsonify
 from flask import send_file
+from flask_cors import CORS
 import boto3
 from botocore.client import Config
 
@@ -34,6 +35,7 @@ torch.backends.cudnn.benchmark=True
 os.environ['CUDA_VISIBLE_DEVICES']='0'
 
 app = Flask(__name__)
+CORS(app)
 
 def upload_image(upload_file_path, bucket, destination):
     client.upload_file(upload_file_path, bucket, destination)

@@ -35,6 +35,8 @@ RUN pip3 install scikit-image
 
 RUN pip3 install requests
 
+RUN pip3 install flask-cors
+
 EXPOSE 5000
 
 ENTRYPOINT ["python3"]
