@@ -3,6 +3,7 @@ import os
 import sys
 import requests
 import ssl
+import traceback
 from flask import Flask, render_template
 from flask import request
 from flask import jsonify
@@ -36,6 +37,11 @@ os.environ['CUDA_VISIBLE_DEVICES']='0'
 
 app = Flask(__name__)
 CORS(app)
+
+
+API_KEY = os.environ.get('API_KEY')
+if not API_KEY:
+    raise ValueError("No API_KEY set for Flask application")
 
 def upload_image(upload_file_path, bucket, destination):
     client.upload_file(upload_file_path, bucket, destination)
@@ -83,10 +89,14 @@ def index():
 
     else:
         return render_template('index.html')
-@app.route("/process", methods=["POST"])
 def process_image():
+    
+    request_key = request.headers.get('API_KEY')
+    
+    if not request_key or request_key != API_KEY:
+        return jsonify({'message': 'Unauthorized'}), 401
 
-    input_path = generate_random_filename(upload_directory,"jpeg")
+    input_path = generate_random_filename(upload_directory, "jpeg")
     output_path = os.path.join(results_img_directory, os.path.basename(input_path))
 
     try:
@@ -109,14 +119,14 @@ def process_image():
 
     except:
         traceback.print_exc()
-        return {'message': 'input error'}, 400
+        return jsonify({'message': 'input error'}), 400
 
     finally:
-        pass
         clean_all([
             input_path,
             output_path
-            ])
+        ])
+
 if __name__ == '__main__':
     global upload_directory
     global results_img_directory

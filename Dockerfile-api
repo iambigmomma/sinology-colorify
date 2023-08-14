@@ -1,4 +1,5 @@
-From nvcr.io/nvidia/pytorch:19.04-py3
+# Use the specified base image
+FROM nvcr.io/nvidia/pytorch:19.04-py3
 
 RUN apt-get -y update
 
@@ -15,31 +16,19 @@ RUN curl -k -o ColorizeArtistic_gen.pth 'https://data.deepai.org/deoldify/Colori
 
 RUN curl -k -o ColorizeStable_gen.pth 'https://www.dropbox.com/s/mz5n9hiq6hmwjq7/ColorizeStable_PretrainOnly_gen.pth?dl=1'
 
-
-
+# Go back to the /data directory
 ADD . /data/
 
 WORKDIR /data
 
 RUN pip install --upgrade pip
 
-RUN pip3 install -r requirements.txt
+# Multiple RUN instructions for pip
+RUN pip3 install -r requirements.txt opencv-python Flask Pillow scikit-image requests flask-cors
 
-RUN pip3 install opencv-python
-
-RUN pip3 install Flask
-
-RUN pip3 install Pillow
-
-RUN pip3 install scikit-image
-
-RUN pip3 install requests
-
-RUN pip3 install flask-cors
-
+# Expose port 5000
 EXPOSE 5000
 
 ENTRYPOINT ["python3"]
 
 CMD ["app.py"]
-
