@@ -89,6 +89,7 @@ def index():
 
     else:
         return render_template('index.html')
+@app.route("/process", methods=["POST"])
 def process_image():
     
     request_key = request.headers.get('API_KEY')
