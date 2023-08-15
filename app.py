@@ -39,9 +39,9 @@ app = Flask(__name__)
 CORS(app)
 
 
-X-API-KEY = os.environ.get('X-API-KEY')
-if not X-API-KEY:
-    raise ValueError("No X-API-KEY set for Flask application")
+X_API_KEY = os.environ.get('X_API_KEY')
+if not X_API_KEY:
+    raise ValueError("No X_API_KEY set in enviroment for Flask application")
 
 def upload_image(upload_file_path, bucket, destination):
     client.upload_file(upload_file_path, bucket, destination)
@@ -94,7 +94,7 @@ def process_image():
     
     request_key = request.headers.get('X-API-KEY')
     
-    if not request_key or request_key != X-API-KEY:
+    if not request_key or request_key != X_API_KEY:
         return jsonify({'message': 'Unauthorized'}), 401
 
     input_path = generate_random_filename(upload_directory, "jpeg")
