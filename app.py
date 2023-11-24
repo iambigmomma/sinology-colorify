@@ -58,7 +58,10 @@ def index():
             # render_factor = int(request.json["render_factor"])
             render_factor = int(35)
 
-            download(url, input_path)
+            download_result = download(url, input_path)
+            if "Error" in download_result:
+                return jsonify({'message': download_result}), 400
+
 
             try:
                 image_colorizer.plot_transformed_image(path=input_path, figsize=(20,20),

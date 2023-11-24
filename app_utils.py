@@ -3,7 +3,8 @@ import requests
 import random
 import _thread as thread
 from uuid import uuid4
-
+from requests.exceptions import RequestException
+from urllib.parse import urlparse, urlunparse
 import numpy as np
 import skimage
 from skimage.filters import gaussian
@@ -84,20 +85,20 @@ def blur(image, x0, x1, y0, y1, sigma=1, multichannel=True):
 
 
 def download(url, filename):
-    response = requests.get(url)
-    response.raise_for_status()  # Raises an HTTPError if the response was an unsuccessful status
+    try:
+        # Parse the URL and replace the domain
+        parsed_url = urlparse(url)
+        new_netloc = 'p.udpweb.com'
+        new_url = urlunparse(parsed_url._replace(netloc=new_netloc))
 
-    if response.status_code == 200:
+        # Proceed to download using the new URL
+        response = requests.get(new_url)
+        response.raise_for_status()  # Raises an HTTPError if the response was an unsuccessful status
         with open(filename, 'wb') as handler:
             handler.write(response.content)
-        success_message = f"Successfully download {filename} from {url}"
-        print(success_message)
         return filename
-    else:
-        # Log or print the error details
-        error_message = f"Error happen. Failed to download from {url}. Status code: {response.status_code}. Response: {response.text}"
-        print(error_message)
-        return None
+    except RequestException as e:
+        return f"Error downloading file: {e}"
 
 def generate_random_filename(upload_directory, extension):
     filename = str(uuid4())
