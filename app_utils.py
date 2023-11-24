@@ -35,37 +35,39 @@ def compress_image(image, path_original):
 
 
 def convertToJPG(path_original):
-    img = Image.open(path_original)
-    name = os.path.basename(path_original).split('.')
-    first_name = os.path.join(os.path.dirname(path_original), name[0] + '.jpg')
+    # Check if the file exists
+    if not os.path.exists(path_original):
+        return f"File not found: {path_original}"
 
-    if img.format == "JPEG":
-        image = img.convert('RGB')
-        compress_image(image, path_original)
-        img.close()
+    # File exists, proceed with conversion
+    with Image.open(path_original) as img:
+        name = os.path.basename(path_original).split('.')
+        first_name = os.path.join(os.path.dirname(path_original), name[0] + '.jpg')
 
-    elif img.format == "GIF":
-        i = img.convert("RGBA")
-        bg = Image.new("RGBA", i.size)
-        image = Image.composite(i, bg, i)
-        compress_image(image, path_original)
-        img.close()
-
-    elif img.format == "PNG":
-        try:
-            image = Image.new("RGB", img.size, (255,255,255))
-            image.paste(img,img)
-            compress_image(image, path_original)
-        except ValueError:
+        if img.format == "JPEG":
             image = img.convert('RGB')
             compress_image(image, path_original)
-        
-        img.close()
 
-    elif img.format == "BMP":
-        image = img.convert('RGB')
-        compress_image(image, path_original)
-        img.close()
+        elif img.format == "GIF":
+            i = img.convert("RGBA")
+            bg = Image.new("RGBA", i.size)
+            image = Image.composite(i, bg, i)
+            compress_image(image, path_original)
+
+        elif img.format == "PNG":
+            try:
+                image = Image.new("RGB", img.size, (255,255,255))
+                image.paste(img,img)
+                compress_image(image, path_original)
+            except ValueError:
+                image = img.convert('RGB')
+                compress_image(image, path_original)
+
+        elif img.format == "BMP":
+            image = img.convert('RGB')
+            compress_image(image, path_original)
+
+    return f"File existed and was successfully converted: {first_name}"
 
 
 
