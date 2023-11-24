@@ -83,13 +83,17 @@ def blur(image, x0, x1, y0, y1, sigma=1, multichannel=True):
 
 def download(url, filename):
     response = requests.get(url)
+    response.raise_for_status()  # Raises an HTTPError if the response was an unsuccessful status
+
     if response.status_code == 200:
         with open(filename, 'wb') as handler:
             handler.write(response.content)
+        success_message = f"Successfully download {filename} from {url}"
+        print(success_message)
         return filename
     else:
         # Log or print the error details
-        error_message = f"Failed to download from {url}. Status code: {response.status_code}. Response: {response.text}"
+        error_message = f"Error happen. Failed to download from {url}. Status code: {response.status_code}. Response: {response.text}"
         print(error_message)
         return None
 

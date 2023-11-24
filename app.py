@@ -91,9 +91,8 @@ def index():
         return render_template('index.html')
 @app.route("/process", methods=["POST"])
 def process_image():
-    
     request_key = request.headers.get('X-API-KEY')
-    
+
     if not request_key or request_key != X_API_KEY:
         return jsonify({'message': 'Unauthorized'}), 401
 
@@ -104,29 +103,28 @@ def process_image():
         url = request.json["source_url"]
         render_factor = int(request.json["render_factor"])
 
-        download(url, input_path)
+        download_result = download(url, input_path)
+        if "Error" in download_result:
+            return jsonify({'message': download_result}), 400
 
         try:
             image_colorizer.plot_transformed_image(path=input_path, figsize=(20,20),
                 render_factor=render_factor, display_render_factor=True, compare=False)
-        except:
+        except Exception as e:
+            traceback.print_exc()
             convertToJPG(input_path)
             image_colorizer.plot_transformed_image(path=input_path, figsize=(20,20),
             render_factor=render_factor, display_render_factor=True, compare=False)
 
         callback = send_file(output_path, mimetype='image/jpeg')
-
         return callback, 200
 
-    except:
+    except Exception as e:
         traceback.print_exc()
-        return jsonify({'message': 'input error'}), 400
+        return jsonify({'message': f'Processing error: {str(e)}'}), 400
 
     finally:
-        clean_all([
-            input_path,
-            output_path
-        ])
+        clean_all([input_path, output_path])
 
 if __name__ == '__main__':
     global upload_directory
