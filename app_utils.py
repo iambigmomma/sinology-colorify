@@ -86,13 +86,17 @@ def blur(image, x0, x1, y0, y1, sigma=1, multichannel=True):
 
 def download(url, filename):
     try:
-        # Parse the URL and replace the domain
+        # Parse the URL
         parsed_url = urlparse(url)
-        new_netloc = 'p.udpweb.com'
-        new_url = urlunparse(parsed_url._replace(netloc=new_netloc))
+        original_domain = parsed_url.netloc
 
-        # Proceed to download using the new URL
-        response = requests.get(new_url)
+        # Change domain only if it's not from China site "120.25.213.4"
+        if original_domain != "120.25.213.4":
+            new_netloc = 'p.udpweb.com'
+            url = urlunparse(parsed_url._replace(netloc=new_netloc))
+
+        # Proceed to download
+        response = requests.get(url)
         response.raise_for_status()  # Raises an HTTPError if the response was an unsuccessful status
         with open(filename, 'wb') as handler:
             handler.write(response.content)
