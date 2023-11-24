@@ -82,12 +82,16 @@ def blur(image, x0, x1, y0, y1, sigma=1, multichannel=True):
 
 
 def download(url, filename):
-    data = requests.get(url).content
-    with open(filename, 'wb') as handler:
-        handler.write(data)
-
-    return filename
-
+    response = requests.get(url)
+    if response.status_code == 200:
+        with open(filename, 'wb') as handler:
+            handler.write(response.content)
+        return filename
+    else:
+        # Log or print the error details
+        error_message = f"Failed to download from {url}. Status code: {response.status_code}. Response: {response.text}"
+        print(error_message)
+        return None
 
 def generate_random_filename(upload_directory, extension):
     filename = str(uuid4())
